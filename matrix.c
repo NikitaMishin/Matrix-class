@@ -102,3 +102,120 @@ void mul_matrix(matrix *A, matrix *B, matrix **C)
 	(*C)[0].row =row_a;
 	(*C)[0].col =col_b;
 }
+
+void sum_matrix(matrix *A, matrix *B, matrix **C)
+{
+	if( (A->row != B->row) || (A->col != B->col) )
+	{
+		printf("Sorry, Can't sum these matrix.Wrong size. Try another matrix\n");
+		return;
+	}
+	int row_a = A->row;
+	int col_a = A->col;
+	*C = (matrix*)malloc(sizeof(matrix));
+	(*C)[0].table = (int**)malloc(sizeof(int*)*row_a);
+	for (int i = 0; i < row_a;i++)
+	{
+		(*C)[0].table[i] = (int*)malloc(sizeof(int)*col_a);
+		for (int j = 0; j < col_a;j++)
+		{
+			(*C)[0].table[i][j] = A->table[i][j] + B->table[i][j];
+		}
+	}
+	(*C)[0].row =row_a;
+	(*C)[0].col =col_a;
+}
+
+
+void sub_matrix(matrix *A, matrix *B, matrix **C)
+{
+	if( (A->row != B->row) || (A->col != B->col) )
+	{
+		printf("Sorry, Can't sub these matrix.Wrong size. Try another matrix\n");
+		return;
+	}
+	int row_a = A->row;
+	int col_a = A->col;
+	*C = (matrix*)malloc(sizeof(matrix));
+	(*C)[0].table = (int**)malloc(sizeof(int*)*row_a);
+	for (int i = 0; i < row_a;i++)
+	{
+		(*C)[0].table[i] = (int*)malloc(sizeof(int)*col_a);
+		for (int j = 0; j < col_a;j++)
+		{
+			(*C)[0].table[i][j] = A->table[i][j] - B->table[i][j];
+		}
+	}
+	(*C)[0].row =row_a;
+	(*C)[0].col =col_a;
+}
+
+void power_matrix(matrix *A,matrix **C, int n)
+{
+	if( A->row != A->col)
+	{
+		printf("Sorry, Can't power this matrix.Wrong size(col!=row).Try another matrix\n");
+		return;
+	}
+	int **subN;
+	int **N;
+	int **tmp;
+	int flag = n%2;
+	int **a = A->table;
+	int row = A->row;
+	*C = (matrix*)malloc(sizeof(matrix));
+	(*C)[0].row = row;
+	(*C)[0].col = row;
+	(*C)[0].table = (int**)malloc(sizeof(int*) * row);
+	N = (*C)[0].table;
+	subN = (int**)malloc(sizeof(int*) * row);
+	if ( n <= 0)
+	{
+		//if (n < 0) inverse matrix;
+		//{}
+		//n = -n;
+		if (n == 0)
+		{
+			for (int i = 0 ;i < row;i++)
+			{
+				N[i] = (int*)calloc(row,sizeof(int));
+				N[i][i] = 1;
+			}
+			free(subN);
+			return;
+		}
+	}
+	for (int i = 0; i < row;i++)
+	{
+		N[i] = (int*)malloc(sizeof(int)*row);//
+		subN[i] = (int*)malloc(sizeof(int)*row);
+		for(int j = 0; j < row; j++)
+		{
+			subN[i][j] = A->table[i][j];
+			N[i][j] = A->table[i][j];
+		}
+	}
+	while(--n)
+	{
+		for (int i = 0; i < row;i++)
+		{
+			for (int j = 0; j < row;j++)
+			{
+				N[i][j] = 0;
+				for( int k = 0; k < row;k++)
+				{
+					N[i][j] += a[i][k] * subN[k][j];
+				}
+			}
+		}
+		tmp = N;
+		N = subN;
+		subN = tmp;
+	}
+	if (flag) (*C)[0].table = subN;
+	for (int i = 0; i < row;i++)
+	{
+		free(N[i]);
+	}
+	free(N);
+}
