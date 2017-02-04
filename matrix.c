@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "matrix.h"
-
+#include "simpleTransformation.h"
 int  input_matrix(matrix **A)
 {
 	int quantity,row,col;
