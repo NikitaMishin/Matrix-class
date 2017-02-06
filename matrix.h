@@ -9,13 +9,13 @@ void sum_matrix(matrix *A, matrix *B, matrix **C);//ok
 void sub_matrix(matrix *A, matrix *B, matrix **C);//ok
 void power_matrix(matrix *A,matrix **C, int n); //ok
 
-void Gauss_matrix(matrix *A);
-void inverse_matrix(matrix *A,matrix **C);//gause plus smth
-int get_rank_matrix(matrix *A);//use Gauss_matrix
+int Gauss_matrix(matrix *A);
+void inverse_matrix(matrix *A,matrix **C);//ok
+int get_rank_matrix(matrix A);//ok
+//another block det.h
+int det_matrix(matrix *A);// use Gauss_matrix but remembr about div
+//two ways add also transpomirovanie
+
 
 void Strassen_mul_matrix(matrix *A, matrix *B, matrix **C);
 void square_mul_matrix(matrix *A, matrix *B, matrix **C);//recurs
-//another block det.h
-int det_matrix(matrix *A);// use Gauss_matrix but remembr about div or recurs
-//two ways add also transpomirovanie
-//minor  alg dop

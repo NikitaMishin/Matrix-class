@@ -2,8 +2,9 @@
 #include <stdlib.h>
 #include "matrix.h"
 #include "simpleTransformation.h"
+#include <math.h>
 
-
+#define EPS 0.0000001
 int abs_compare(double a,double b)
 {
 	int flag = 0;
@@ -238,14 +239,13 @@ void power_matrix(matrix *A,matrix **C, int n)
 	free(N);
 }
 
-void Gauss_matrix(matrix *A)
+int Gauss_matrix(matrix *A)
 {
 	int col = A->col;
 	int row = A->row;
 	double **a = A->table;
 	int current_row = 0;
 	int current_col = 0;
-	int different = 0;
 	int i;
 	int n = (col < row)? col:row;
 	double bearing;
@@ -264,11 +264,95 @@ void Gauss_matrix(matrix *A)
 				pos = i;
 			}
 		}
-		if (bearing == 0 ) continue;//sure
-		if (current_row != pos) swap_simpleTransformation(A,pos,current_row,'r');
-		for (int j = current_col;j < col; j++) a[current_row][j] /= bearing;// now 0 0 1......
+		if (fabs(bearing) > EPS  )
+		{
+			if (current_row != pos) swap_simpleTransformation(A,pos,current_row,'r');
+			for (int j = 0;j < col; j++) a[current_row][j] /= bearing;
+			for (int j = current_row + 1; j < row ;j++)
+				add_simpleTransformation(A,j,current_row,-a[j][current_col],'r');
+			current_row++;
+		}
+	}
+
+	return current_row;
+}
+
+int get_rank_matrix(matrix A)
+{
+	return Gauss_matrix(&A);
+}
+
+void inverse_matrix(matrix *A,matrix**C)
+{
+	int col = A->col;
+	int row = A->row;
+	if(row != col)
+	{
+		printf("Sorry.The inverse_matrix didn't exist!");
+		return;
+	}
+	double **a = A->table;
+	int current_row = 0;
+	int current_col = 0;
+	int different = 0;
+	int i;
+	int n = (col < row)? col:row;
+	double bearing;
+	int pos;
+	(*C) = (matrix*)malloc(sizeof(matrix));
+	(*C)[0].table = (double**)malloc(sizeof(double*)*row);
+	(*C)[0].row = n;
+	(*C)[0].col = n;
+	for(int k = 0; k < n; k++ )
+	{
+		(*C)[0].table[k] = (double*)calloc(row, sizeof(double));
+		(*C)[0].table[k][k] = 1;
+	}
+	matrix *N = &(*C)[0];
+
+	for (current_col = 0 ; current_col < n; current_col++) //step in other words it's  a col
+	{
+		bearing = 0;
+		pos = current_row;
+		i = current_row;
+		for (i = current_row;i < row;i++)//by bite do it
+		{
+			if (abs_compare(a[i][current_col],bearing) )
+			{
+				bearing = a[i][current_col];
+				pos = i;
+			}
+		}
+		if (fabs(bearing) < EPS ) break;
+		if (current_row != pos)
+		{
+			swap_simpleTransformation(A,pos,current_row,'r');
+			swap_simpleTransformation(N,pos,current_row,'r');
+		}
+		for (int j = 0;j < col; j++)
+		{
+			a[current_row][j] /= bearing;
+			N->table[current_row][j] /= bearing;
+		}
 		for (int j = current_row + 1; j < row ;j++)
-			add_simpleTransformation(A,j,current_row,-a[j][current_col],'r');// now all zeros below  current_row
+			{
+				add_simpleTransformation(N,j,current_row,-a[j][current_col],'r');
+				add_simpleTransformation(A,j,current_row,-a[j][current_col],'r');
+			}
 		current_row++;
+	}
+	if (fabs(bearing) < EPS)
+	{
+		printf("Sorry.The inverse_matrix didn't exist!");
+		free_matrix(&(*C), 1);
+		return;
+	}
+	for (int k = row-1;k > 0;k--)
+	{
+		for (int t = 0; t < k;t++)
+			{
+				add_simpleTransformation(N,t,k,-a[t][k],'r');
+				add_simpleTransformation(A,t,k,-a[t][k],'r');//ok
+			}
 	}
 }
