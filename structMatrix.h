@@ -1,9 +1,8 @@
-
 #pragma once
 
 typedef struct matrix
 {
-	int **table;
+	double **table;
 	int col;
 	int row;
 }matrix;

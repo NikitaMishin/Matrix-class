@@ -3,7 +3,7 @@
 #include "simpleTransformation.h"
 
 //#define CHECKING()
-void add_simpleTransformation(matrix *A,int to,int what, int scalar, char orient )//maybe add scalar?
+void add_simpleTransformation(matrix *A,int to,int what, double scalar, char orient )//maybe add scalar?
 {
   if (orient == 'r')
   {
@@ -20,14 +20,14 @@ void add_simpleTransformation(matrix *A,int to,int what, int scalar, char orient
   printf("Try again. Wrong orient!");
 }
 
-void mul_simpleTransformation(matrix *A,int scalar)
+void mul_simpleTransformation(matrix *A,double scalar)
 {
   for (int i = 0; i < A->row;i++)
     for (int j = 0 ; j < A->col;j++)
       A->table[i][j] *= scalar;
 }
 
-void div_simpleTransformation(matrix *A,int scalar)
+void div_simpleTransformation(matrix *A,double scalar)
 {
   for (int i = 0; i < A->row;i++)
     for (int j = 0 ; j < A->col;j++)
@@ -39,14 +39,14 @@ void swap_simpleTransformation(matrix *A,int what,int with,char orient)
   //CHECKING();
   if (orient == 'r')
   {
-    int *tmp  = A->table[what];
+    double *tmp  = A->table[what];
     A->table[what] = A->table[with];
     A->table[with] = tmp;
     return;
   }
   if (orient == 'c')
   {
-    int tmp;
+    double tmp;
     for (int i = 0; i < A->row;i++)
     {
       tmp = A->table[i][what];
