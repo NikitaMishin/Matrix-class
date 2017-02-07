@@ -7,7 +7,7 @@ void add_simpleTransformation(matrix *A,int to,int what, double scalar, char ori
 {
   if (orient == 'r')
   {
-    for (int i = 0;i< A->col;i++)
+    for (int i = 0;i < A->col;i++)
       A->table[to][i] += scalar * A->table[what][i];
       return;
   }
@@ -18,6 +18,7 @@ void add_simpleTransformation(matrix *A,int to,int what, double scalar, char ori
       return;
   }
   printf("Try again. Wrong orient!");
+
 }
 
 void mul_simpleTransformation(matrix *A,double scalar)
