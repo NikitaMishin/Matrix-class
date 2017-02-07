@@ -10,7 +10,7 @@ void sub_matrix(matrix *A, matrix *B, matrix **C);//ok
 void power_matrix(matrix *A,matrix **C, int n); //ok
 
 int Gauss_matrix(matrix *A);
-void inverse_matrix(matrix *A,matrix **C);//ok
+int inverse_matrix(matrix *B,matrix **C);//ok
 int get_rank_matrix(matrix A);//ok
 //another block det.h
 int det_matrix(matrix *A);// use Gauss_matrix but remembr about div

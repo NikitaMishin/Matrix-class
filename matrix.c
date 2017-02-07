@@ -5,6 +5,7 @@
 #include <math.h>
 
 #define EPS 0.0000001
+
 int abs_compare(double a,double b)
 {
 	int flag = 0;
@@ -68,7 +69,7 @@ void output_matrix(matrix *A)
 		printf("\n");
 		for(int j = 0 ;j < col; j++)
 		{
-			printf("%10.4lf  ",m[i][j]);
+			printf("%10.6lf  ",m[i][j]);
 		}
 	}
 }
@@ -85,7 +86,6 @@ void free_matrix(matrix **A,int quantity)
 			free( (*A)[k].table[i] );
 		}
 		free( (*A)[k].table );
-
 	}
 	free(*A);
 }
@@ -145,7 +145,6 @@ void sum_matrix(matrix *A, matrix *B, matrix **C)
 	(*C)[0].col =col_a;
 }
 
-
 void sub_matrix(matrix *A, matrix *B, matrix **C)
 {
 	if( (A->row != B->row) || (A->col != B->col) )
@@ -176,11 +175,19 @@ void power_matrix(matrix *A,matrix **C, int n)
 		printf("Sorry, Can't power this matrix.Wrong size(col!=row).Try another matrix\n");
 		return;
 	}
+	matrix *Tmp;
+	double **a;
+	if (n < 0)
+	{
+		if (inverse_matrix(A,&Tmp) == -1) return;
+		n  = -n;
+		a = Tmp->table;
+	}
+	else  a = A->table;;
 	double **subN;
 	double **N;
 	double **tmp;
-	int flag = n%2;
-	double **a = A->table;
+	int flag = (n%2);
 	int row = A->row;
 	*C = (matrix*)malloc(sizeof(matrix));
 	(*C)[0].row = row;
@@ -188,21 +195,15 @@ void power_matrix(matrix *A,matrix **C, int n)
 	(*C)[0].table = (double**)malloc(sizeof(double*) * row);
 	N = (*C)[0].table;
 	subN = (double**)malloc(sizeof(double*) * row);
-	if ( n <= 0)
+	if (n == 0)
 	{
-		//if (n < 0) inverse matrix;
-		//{}
-		//n = -n;
-		if (n == 0)
+		for (int i = 0 ;i < row;i++)
 		{
-			for (int i = 0 ;i < row;i++)
-			{
-				N[i] = (double*)calloc(row,sizeof(double));
-				N[i][i] = 1;
-			}
-			free(subN);
-			return;
+			N[i] = (double*)calloc(row,sizeof(double));
+			N[i][i] = 1;
 		}
+		free(subN);
+		return;
 	}
 	for (int i = 0; i < row;i++)
 	{
@@ -210,8 +211,7 @@ void power_matrix(matrix *A,matrix **C, int n)
 		subN[i] = (double*)malloc(sizeof(double)*row);
 		for(int j = 0; j < row; j++)
 		{
-			subN[i][j] = A->table[i][j];
-			N[i][j] = A->table[i][j];
+			subN[i][j] = a[i][j];
 		}
 	}
 	while(--n)
@@ -237,6 +237,7 @@ void power_matrix(matrix *A,matrix **C, int n)
 		free(N[i]);
 	}
 	free(N);
+	free_matrix(&Tmp,1);
 }
 
 int Gauss_matrix(matrix *A)
@@ -273,7 +274,6 @@ int Gauss_matrix(matrix *A)
 			current_row++;
 		}
 	}
-
 	return current_row;
 }
 
@@ -282,16 +282,17 @@ int get_rank_matrix(matrix A)
 	return Gauss_matrix(&A);
 }
 
-void inverse_matrix(matrix *A,matrix**C)
-{
-	int col = A->col;
-	int row = A->row;
+int inverse_matrix(matrix *B,matrix**C)
+{//copy matrix
+	int col = B->col;
+	int row = B->row;
 	if(row != col)
 	{
 		printf("Sorry.The inverse_matrix didn't exist!");
-		return;
+		return -1;
 	}
-	double **a = A->table;
+	matrix *A = (matrix*)malloc(sizeof(matrix));
+	double **a ;//= A->table;
 	int current_row = 0;
 	int current_col = 0;
 	int different = 0;
@@ -303,13 +304,18 @@ void inverse_matrix(matrix *A,matrix**C)
 	(*C)[0].table = (double**)malloc(sizeof(double*)*row);
 	(*C)[0].row = n;
 	(*C)[0].col = n;
+	A->table = (double**)malloc(sizeof(double*)*row);
+	A->row = n;
+	A->col = n;
 	for(int k = 0; k < n; k++ )
 	{
 		(*C)[0].table[k] = (double*)calloc(row, sizeof(double));
+		A->table[k] = (double*)calloc(row, sizeof(double));
+		for (int j = 0 ;j < n;j++) A->table[k][j] = B->table[k][j];
 		(*C)[0].table[k][k] = 1;
 	}
+	a = A->table;
 	matrix *N = &(*C)[0];
-
 	for (current_col = 0 ; current_col < n; current_col++) //step in other words it's  a col
 	{
 		bearing = 0;
@@ -344,8 +350,9 @@ void inverse_matrix(matrix *A,matrix**C)
 	if (fabs(bearing) < EPS)
 	{
 		printf("Sorry.The inverse_matrix didn't exist!");
-		free_matrix(&(*C), 1);
-		return;
+		free_matrix(C, 1);
+		free_matrix(&A, 1);
+		return -1;
 	}
 	for (int k = row-1;k > 0;k--)
 	{
@@ -355,4 +362,6 @@ void inverse_matrix(matrix *A,matrix**C)
 				add_simpleTransformation(A,t,k,-a[t][k],'r');//ok
 			}
 	}
+	free_matrix(&A, 1);
+	return 1;
 }
