@@ -14,3 +14,4 @@ int get_rank_matrix(matrix A);//ok
 
 void Strassen_mul_matrix(matrix *A, matrix *B, matrix **C);
 void square_mul_matrix(matrix *A, matrix *B, matrix **C);//recurs
+int abs_compare(double a,double b);
